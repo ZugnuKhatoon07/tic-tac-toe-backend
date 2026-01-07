@@ -1,0 +1,88 @@
+[
+    {
+        "label": "Flask",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "SocketIO",
+        "importPath": "flask_socketio",
+        "description": "flask_socketio",
+        "isExtraImport": true,
+        "detail": "flask_socketio",
+        "documentation": {}
+    },
+    {
+        "label": "join_room",
+        "importPath": "flask_socketio",
+        "description": "flask_socketio",
+        "isExtraImport": true,
+        "detail": "flask_socketio",
+        "documentation": {}
+    },
+    {
+        "label": "emit",
+        "importPath": "flask_socketio",
+        "description": "flask_socketio",
+        "isExtraImport": true,
+        "detail": "flask_socketio",
+        "documentation": {}
+    },
+    {
+        "label": "join",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def join(data):\n    room = data[\"room\"]\n    join_room(room)\n    if room not in rooms:\n        rooms[room] = {\n            \"board\": [\"\"] * 9,\n            \"player\": \"X\"\n        }\n    emit(\"update\", rooms[room], room=room)\n@socketio.on(\"move\")",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "move",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def move(data):\n    room = data[\"room\"]\n    i = data[\"index\"]\n    if rooms[room][\"board\"][i] == \"\":\n        rooms[room][\"board\"][i] = rooms[room][\"player\"]\n        rooms[room][\"player\"] = \"O\" if rooms[room][\"player\"] == \"X\" else \"X\"\n        emit(\"update\", rooms[room], room=room)\n@socketio.on(\"restart\")\ndef restart(data):\n    room = data[\"room\"]",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "restart",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def restart(data):\n    room = data[\"room\"]\n    rooms[room][\"board\"] = [\"\"] * 9\n    rooms[room][\"player\"] = \"X\"\n    emit(\"update\", rooms[room], room=room)\nif __name__ == \"__main__\":\n    socketio.run(app)",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "app = Flask(__name__)\nsocketio = SocketIO(app, cors_allowed_origins=\"*\")\nrooms = {}\n@socketio.on(\"join\")\ndef join(data):\n    room = data[\"room\"]\n    join_room(room)\n    if room not in rooms:\n        rooms[room] = {\n            \"board\": [\"\"] * 9,",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "socketio",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "socketio = SocketIO(app, cors_allowed_origins=\"*\")\nrooms = {}\n@socketio.on(\"join\")\ndef join(data):\n    room = data[\"room\"]\n    join_room(room)\n    if room not in rooms:\n        rooms[room] = {\n            \"board\": [\"\"] * 9,\n            \"player\": \"X\"",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "rooms",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "rooms = {}\n@socketio.on(\"join\")\ndef join(data):\n    room = data[\"room\"]\n    join_room(room)\n    if room not in rooms:\n        rooms[room] = {\n            \"board\": [\"\"] * 9,\n            \"player\": \"X\"\n        }",
+        "detail": "app",
+        "documentation": {}
+    }
+]
