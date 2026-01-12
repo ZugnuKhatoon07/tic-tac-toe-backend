@@ -8,6 +8,14 @@
         "documentation": {}
     },
     {
+        "label": "request",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
         "label": "SocketIO",
         "importPath": "flask_socketio",
         "description": "flask_socketio",
@@ -32,11 +40,47 @@
         "documentation": {}
     },
     {
-        "label": "join",
+        "label": "random,",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "random.",
+        "description": "random.",
+        "detail": "random.",
+        "documentation": {}
+    },
+    {
+        "label": "generate_room",
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def join(data):\n    room = data[\"room\"]\n    join_room(room)\n    if room not in rooms:\n        rooms[room] = {\n            \"board\": [\"\"] * 9,\n            \"player\": \"X\"\n        }\n    emit(\"update\", rooms[room], room=room)\n@socketio.on(\"move\")",
+        "peekOfCode": "def generate_room():\n    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))\ndef check_winner(board):\n    for a,b,c in WIN_COMBOS:\n        if board[a] and board[a] == board[b] == board[c]:\n            return board[a], (a,b,c)\n    if \"\" not in board:\n        return \"DRAW\", ()\n    return None, ()\n# 🟢 CREATE ROOM",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "check_winner",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def check_winner(board):\n    for a,b,c in WIN_COMBOS:\n        if board[a] and board[a] == board[b] == board[c]:\n            return board[a], (a,b,c)\n    if \"\" not in board:\n        return \"DRAW\", ()\n    return None, ()\n# 🟢 CREATE ROOM\n@socketio.on(\"createRoom\")\ndef create_room():",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "create_room",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def create_room():\n    room = generate_room()\n    rooms[room] = {\n        \"board\": [\"\"] * 9,\n        \"players\": {},   # sid -> X/O\n        \"turn\": \"X\",\n        \"gameOver\": False\n    }\n    emit(\"roomCreated\", room)\n# 🔵 JOIN ROOM",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "join_room_event",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def join_room_event(room):\n    if room not in rooms:\n        emit(\"message\", \"Room not found\")\n        return\n    if len(rooms[room][\"players\"]) >= 2:\n        emit(\"message\", \"Room full\")\n        return\n    join_room(room)\n    symbol = \"X\" if \"X\" not in rooms[room][\"players\"].values() else \"O\"\n    rooms[room][\"players\"][request.sid] = symbol",
         "detail": "app",
         "documentation": {}
     },
@@ -45,7 +89,7 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def move(data):\n    room = data[\"room\"]\n    i = data[\"index\"]\n    if rooms[room][\"board\"][i] == \"\":\n        rooms[room][\"board\"][i] = rooms[room][\"player\"]\n        rooms[room][\"player\"] = \"O\" if rooms[room][\"player\"] == \"X\" else \"X\"\n        emit(\"update\", rooms[room], room=room)\n@socketio.on(\"restart\")\ndef restart(data):\n    room = data[\"room\"]",
+        "peekOfCode": "def move(data):\n    room = data[\"room\"]\n    index = data[\"index\"]\n    if room not in rooms:\n        return\n    game = rooms[room]\n    if game[\"gameOver\"]:\n        return\n    # ❌ NOT YOUR TURN\n    if game[\"players\"].get(request.sid) != game[\"turn\"]:",
         "detail": "app",
         "documentation": {}
     },
@@ -54,7 +98,25 @@
         "kind": 2,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "def restart(data):\n    room = data[\"room\"]\n    rooms[room][\"board\"] = [\"\"] * 9\n    rooms[room][\"player\"] = \"X\"\n    emit(\"update\", rooms[room], room=room)\nif __name__ == \"__main__\":\n    socketio.run(app)",
+        "peekOfCode": "def restart(data):\n    room = data[\"room\"]\n    if room not in rooms:\n        return\n    rooms[room][\"board\"] = [\"\"] * 9\n    rooms[room][\"turn\"] = \"X\"\n    rooms[room][\"gameOver\"] = False\n    emit(\"boardUpdate\", {\n        \"board\": rooms[room][\"board\"],\n        \"turn\": \"X\"",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "chat",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def chat(data):\n    emit(\"chat\", data, room=data[\"room\"])\n# 😆 EMOJI\n@socketio.on(\"emoji\")\ndef emoji(data):\n    emit(\"emoji\", data, room=data[\"room\"])\nif __name__ == \"__main__\":\n    socketio.run(app, host=\"0.0.0.0\", port=5000)",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "emoji",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def emoji(data):\n    emit(\"emoji\", data, room=data[\"room\"])\nif __name__ == \"__main__\":\n    socketio.run(app, host=\"0.0.0.0\", port=5000)",
         "detail": "app",
         "documentation": {}
     },
@@ -63,7 +125,7 @@
         "kind": 5,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "app = Flask(__name__)\nsocketio = SocketIO(app, cors_allowed_origins=\"*\")\nrooms = {}\n@socketio.on(\"join\")\ndef join(data):\n    room = data[\"room\"]\n    join_room(room)\n    if room not in rooms:\n        rooms[room] = {\n            \"board\": [\"\"] * 9,",
+        "peekOfCode": "app = Flask(__name__)\nsocketio = SocketIO(app, cors_allowed_origins=\"*\")\nrooms = {}\nWIN_COMBOS = [\n    (0,1,2),(3,4,5),(6,7,8),\n    (0,3,6),(1,4,7),(2,5,8),\n    (0,4,8),(2,4,6)\n]\ndef generate_room():\n    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))",
         "detail": "app",
         "documentation": {}
     },
@@ -72,7 +134,7 @@
         "kind": 5,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "socketio = SocketIO(app, cors_allowed_origins=\"*\")\nrooms = {}\n@socketio.on(\"join\")\ndef join(data):\n    room = data[\"room\"]\n    join_room(room)\n    if room not in rooms:\n        rooms[room] = {\n            \"board\": [\"\"] * 9,\n            \"player\": \"X\"",
+        "peekOfCode": "socketio = SocketIO(app, cors_allowed_origins=\"*\")\nrooms = {}\nWIN_COMBOS = [\n    (0,1,2),(3,4,5),(6,7,8),\n    (0,3,6),(1,4,7),(2,5,8),\n    (0,4,8),(2,4,6)\n]\ndef generate_room():\n    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))\ndef check_winner(board):",
         "detail": "app",
         "documentation": {}
     },
@@ -81,7 +143,16 @@
         "kind": 5,
         "importPath": "app",
         "description": "app",
-        "peekOfCode": "rooms = {}\n@socketio.on(\"join\")\ndef join(data):\n    room = data[\"room\"]\n    join_room(room)\n    if room not in rooms:\n        rooms[room] = {\n            \"board\": [\"\"] * 9,\n            \"player\": \"X\"\n        }",
+        "peekOfCode": "rooms = {}\nWIN_COMBOS = [\n    (0,1,2),(3,4,5),(6,7,8),\n    (0,3,6),(1,4,7),(2,5,8),\n    (0,4,8),(2,4,6)\n]\ndef generate_room():\n    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))\ndef check_winner(board):\n    for a,b,c in WIN_COMBOS:",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "WIN_COMBOS",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "WIN_COMBOS = [\n    (0,1,2),(3,4,5),(6,7,8),\n    (0,3,6),(1,4,7),(2,5,8),\n    (0,4,8),(2,4,6)\n]\ndef generate_room():\n    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))\ndef check_winner(board):\n    for a,b,c in WIN_COMBOS:\n        if board[a] and board[a] == board[b] == board[c]:",
         "detail": "app",
         "documentation": {}
     }
