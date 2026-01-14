@@ -1,3 +1,7 @@
-flask
-flask-socketio
-eventlet
+flask==2.3.3
+flask-socketio==5.3.6
+python-socketio==5.16.0
+python-engineio==4.13.0
+eventlet==0.36.1
+gunicorn==21.2.0
+python-3.11.9
